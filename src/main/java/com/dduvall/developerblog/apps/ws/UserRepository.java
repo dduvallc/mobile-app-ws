@@ -2,6 +2,8 @@ package com.dduvall.developerblog.apps.ws;
 
 import com.dduvall.developerblog.apps.ws.io.entity.UserEntity;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
     /*
@@ -20,8 +22,11 @@ import org.springframework.stereotype.Repository;
      */
 
 @Repository
-public interface UserRepository extends CrudRepository<UserEntity, Long> {
+//public interface UserRepository extends CrudRepository<UserEntity, Long> {
+public interface UserRepository extends PagingAndSortingRepository<UserEntity, Long>, ListCrudRepository<UserEntity, Long> { //CrudRepository, above, will still work
 
         UserEntity findByEmail(String email);
+
+        UserEntity findByUserId(String userId);
 
 }
