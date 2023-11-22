@@ -18,7 +18,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("users") // http://localhost:8080/users
+@RequestMapping("/users") // http://localhost:8080/users
 public class UserController {
 
     @Autowired
