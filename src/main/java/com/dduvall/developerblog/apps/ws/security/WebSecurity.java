@@ -16,6 +16,10 @@ import org.springframework.security.config.annotation.web.configurers.SessionMan
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -32,6 +36,13 @@ public class WebSecurity {
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+        corsConfiguration.setAllowedOrigins(List.of("*"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setExposedHeaders(List.of("Authorization"));
+
         // Configure AuthenticationManagerBuilder
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
@@ -46,11 +57,15 @@ public class WebSecurity {
         AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager);
         authenticationFilter.setFilterProcessesUrl("/users/login");
 
-        http.csrf(csrf -> csrf.disable())
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL, "/error")  //to receive error message
+                        .requestMatchers(new AntPathRequestMatcher(SecurityConstants.SIGN_UP_URL, "POST"))  //to receive error message
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET,  "/error")  //to receive error message
+                        .requestMatchers(new AntPathRequestMatcher("/error", "POST"))  //to receive error message
+                        .permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/error", "GET"))  //to receive error message
                         .permitAll()
                         .anyRequest().authenticated()) // only one of .anyRequest...authenticated...
                 .authenticationManager(authenticationManager)
