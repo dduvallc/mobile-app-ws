@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findByEmail(username);
 
         if (userEntity == null) throw new UsernameNotFoundException(username);
-        return new User(username, userEntity.getEncryptedPassword(), new ArrayList<>());
+        return new User(username, userEntity.getEncryptedPassword(), new ArrayList<>()); // User from Spring Framework
     }
 
     @Override
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
         if (userEntity == null) throw new UsernameNotFoundException(email);
 
         UserDto returnValue = new UserDto();
-        BeanUtils.copyProperties(userEntity, returnValue);
+        BeanUtils.copyProperties(userEntity, returnValue);  //purpose is to get userId
 
         return returnValue;
     }

@@ -43,14 +43,20 @@ public class WebSecurity {
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setExposedHeaders(List.of("Authorization"));
 
-        // Configure AuthenticationManagerBuilder
+        // Configure AuthenticationManagerBuilder - needed for user authentication process
+        // You can think of user authentication as user login feature.
+        // To perform user login or user authentication,
+        // we will need to send the HTTP request to forward slash login API endpoint
+        // and include username and password in the body of HTTP request.
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
 
+        // authenticate the password by telling which encoder to use
         authenticationManagerBuilder
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(bCryptPasswordEncoder);
-
+                .userDetailsService(userDetailsService)  // telling SF which service class to load user details from DB and....
+                .passwordEncoder(bCryptPasswordEncoder); // which encryption object it should use to verify if login request passwd
+                                                         // matches the encrypted passwd in the DB
+        //Build custom AuthenticationManager object
         AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 
         // Customize Login URL path
@@ -61,14 +67,14 @@ public class WebSecurity {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(new AntPathRequestMatcher(SecurityConstants.SIGN_UP_URL, "POST"))  //to receive error message
+                        .requestMatchers(new AntPathRequestMatcher(SecurityConstants.SIGN_UP_URL, "POST"))
                         .permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/error", "POST"))  //to receive error message
                         .permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/error", "GET"))  //to receive error message
                         .permitAll()
                         .anyRequest().authenticated()) // only one of .anyRequest...authenticated...
-                .authenticationManager(authenticationManager)
+                .authenticationManager(authenticationManager) //update http security object with custom authenticationManager
                 .addFilter(authenticationFilter)
                 .addFilter(new AuthorizationFilter(authenticationManager))
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

@@ -24,6 +24,8 @@ public class MobileAppWsApplication extends SpringBootServletInitializer {
 		return new BCryptPasswordEncoder();
 	}
 
+	// You can also use the @Component above the SpringApplicationContext class name to get Bean
+	// This way you have more control if there is more than one constructor
 	@Bean
 	public SpringApplicationContext springApplicationContext() {
 		return new SpringApplicationContext();
