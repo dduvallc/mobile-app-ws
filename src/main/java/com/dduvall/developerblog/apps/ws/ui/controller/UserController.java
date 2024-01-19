@@ -11,11 +11,15 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -135,18 +139,38 @@ public class UserController {
         returnValue = new ModelMapper().map(addressesDTO, listType);
 
         return returnValue;
-//        return "get user was called";
     }
 
     // http://localhost:8080/mobile-app-ws/users/<user-id> like jsjajdkfgh/addresses/address-id
-    @GetMapping (path="/{id}/addresses/{addressId}",
+    @GetMapping (path="/{userId}/addresses/{addressId}",
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})       // bind method to http get request
-    public AddressesRest getUserAddress (@PathVariable String addressId) {
+    public AddressesRest getUserAddress (@PathVariable String userId, @PathVariable String addressId) {  // if @PathVariable different then path need, need (@PathVariable("id")
 
         AddressDTO addressesDto = addressesService.getAddress(addressId);
-//        BeanUtils.copyProperties(userDto, returnValue);
         ModelMapper modelMapper = new ModelMapper();
-        return modelMapper.map(addressesDto, AddressesRest.class);
+        AddressesRest returnValue = modelMapper.map(addressesDto, AddressesRest.class);
+
+        // http://localhost:8080/users/<userId>
+        Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).withRel("user"); // "user" used as jason key to a link object in the response
+        // http://localhost:8080/users/<userId>/addresses
+        Link userAddressesLink = WebMvcLinkBuilder.linkTo(UserController.class)
+                .slash(userId)
+                .slash("addresses")
+                .withRel("addresses");
+        // http://localhost:8080/users/<userId>/addresses/{addressId}
+        Link selfLink = WebMvcLinkBuilder.linkTo(UserController.class)
+                .slash(userId)
+                .slash("addresses")
+                .slash(addressId)
+                .withSelfRel();
+
+        returnValue.add(userLink);
+        returnValue.add(userAddressesLink);
+        returnValue.add(selfLink);
+
+
+
+        return returnValue;
 
     }
 
