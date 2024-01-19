@@ -144,7 +144,7 @@ public class UserController {
     // http://localhost:8080/mobile-app-ws/users/<user-id> like jsjajdkfgh/addresses/address-id
     @GetMapping (path="/{userId}/addresses/{addressId}",
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})       // bind method to http get request
-    public AddressesRest getUserAddress (@PathVariable String userId, @PathVariable String addressId) {  // if @PathVariable different then path need, need (@PathVariable("id")
+    public EntityModel<AddressesRest> getUserAddress (@PathVariable String userId, @PathVariable String addressId) {  // if @PathVariable different then path need, need (@PathVariable("id")
 
         AddressDTO addressesDto = addressesService.getAddress(addressId);
         ModelMapper modelMapper = new ModelMapper();
@@ -164,13 +164,12 @@ public class UserController {
                 .slash(addressId)
                 .withSelfRel();
 
-        returnValue.add(userLink);
-        returnValue.add(userAddressesLink);
-        returnValue.add(selfLink);
+//        returnValue.add(userLink);
+//        returnValue.add(userAddressesLink);
+//        returnValue.add(selfLink);
 
 
-
-        return returnValue;
+        return EntityModel.of(returnValue, Arrays.asList(userLink, userAddressesLink, selfLink));
 
     }
 
