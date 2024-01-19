@@ -1,4 +1,4 @@
-package com.dduvall.developerblog.apps.ws;
+package com.dduvall.developerblog.apps.ws.io.repository;
 
 import com.dduvall.developerblog.apps.ws.io.entity.UserEntity;
 import org.springframework.data.repository.CrudRepository;

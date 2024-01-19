@@ -7,6 +7,7 @@ import com.dduvall.developerblog.apps.ws.ui.model.request.UserLoginRequestModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +42,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     // method part of the UsernamePasswordAuthenticationFilter class (part of the default filter chain).
     // When login request, then HTTP request will pass through this filter
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
         try {
@@ -64,19 +66,20 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         // Use my security constants class to read the value of token secret and get its bytes.
         // Then use base64 encoder to encode these bytes into a new byte array.
         byte[] secretKeyBytes = Base64.getEncoder().encode(SecurityConstants.getTokenSecret().getBytes());
-
         //use this byte array to generate secret key which will be used to sign JWT access token in the code below
-        SecretKey secretKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
+        SecretKey secretKey = Keys.hmacShaKeyFor(secretKeyBytes);
+
 
         Instant now = Instant.now(); // get current time
 
         String userName = ((User) auth.getPrincipal()).getUsername(); //use auth object to read username of the currently authenticated user and then add
                                                                       // this username as a subject to access token below
         String token = Jwts.builder()  //create token
-                .setSubject(userName)
-                .setExpiration(
-                        Date.from(now.plusMillis(SecurityConstants.EXPIRATION_TIME))) // set token expiration date
-                .setIssuedAt(Date.from(now)).signWith(secretKey, SignatureAlgorithm.HS512).compact(); // set time when token issued, sign with secret key
+                .subject(userName)
+                .expiration(Date.from(now.plusMillis(SecurityConstants.EXPIRATION_TIME))) // set token expiration date
+                .issuedAt(Date.from(now)) // set time when token issued
+                .signWith(secretKey) // sign with secret key
+                .compact(); // build jwt
                                                                                                       // and compact method will return final value of JWT token
 
         // calls helper class to get a bean where we need one.

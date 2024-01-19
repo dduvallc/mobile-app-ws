@@ -11,10 +11,11 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.Date;
 
 @ControllerAdvice
-public class AppExceptionHandler {
+public class AppExceptionsHandler {
 
     @ExceptionHandler(value = {UserServiceException.class})
-    public ResponseEntity<Object> handleUserServiceException(UserServiceException ex, WebRequest request) {
+    public ResponseEntity<Object> handleUserServiceException(UserServiceException ex, WebRequest request) { // arg1 is the exception to handle
+                                                                                                            // arg2 gives access to Http request...cookies, headers, etc.
         ErrorMessage errorMessage = new ErrorMessage(new Date(), ex.getMessage());
 
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);

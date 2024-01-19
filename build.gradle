@@ -31,16 +31,31 @@ repositories {
 }
 
 dependencies {
+
+	// spring-boot
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'mysql:mysql-connector-java:8.0.33'
 	implementation 'org.springframework.boot:spring-boot-devtools'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'io.jsonwebtoken:jjwt-api:0.12.2'
+
+	// fasterxml
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.2'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.2'
+	// other items
+	implementation 'mysql:mysql-connector-java:8.0.33'
+
+	// jjwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+	// mapper
+	implementation 'org.modelmapper:modelmapper:3.1.1'
+
+	//HATEOAS
+	implementation 'org.springframework.boot:spring-boot-starter-hateoas:3.1.4'
+
+	// testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

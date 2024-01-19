@@ -1,12 +1,10 @@
 package com.dduvall.developerblog.apps.ws.io.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity(name="users")  // table name
 public class UserEntity implements Serializable {
@@ -19,7 +17,7 @@ public class UserEntity implements Serializable {
     private long id;
 
     @Column(nullable = false)
-    private String userId;  // alpha-numeric public user ID, which we will be sending back to a mobile
+    private String userId;  // alphanumeric public user ID, which we will be sending back to a mobile
                             // application with a response. Safe to pass around network in our http requests
 
     @Column(nullable = false, length = 50)
@@ -36,8 +34,11 @@ public class UserEntity implements Serializable {
 
     private String emailVerificationToken;
 
-    @Column(nullable = false)
-    private Boolean getEmailVerificationStatus = false;
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean emailVerificationStatus = false;
+
+    @OneToMany(mappedBy = "userDetails", cascade = CascadeType.ALL) // mapped by field owning the relationship
+    private List<AddressEntity> addresses;
 
     public long getId() {
         return id;
@@ -95,11 +96,20 @@ public class UserEntity implements Serializable {
         this.emailVerificationToken = emailVerificationToken;
     }
 
-    public Boolean getGetEmailVerificationStatus() {
-        return getEmailVerificationStatus;
+    public Boolean getEmailVerificationStatus() {
+        return emailVerificationStatus;
     }
 
-    public void setGetEmailVerificationStatus(Boolean getEmailVerificationStatus) {
-        this.getEmailVerificationStatus = getEmailVerificationStatus;
+    public void setEmailVerificationStatus(Boolean emailVerificationStatus) {
+        this.emailVerificationStatus = emailVerificationStatus;
     }
+
+    public List<AddressEntity> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressEntity> addresses) {
+        this.addresses = addresses;
+    }
+
 }

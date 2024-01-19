@@ -67,7 +67,7 @@ public class WebSecurity {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(new AntPathRequestMatcher(SecurityConstants.SIGN_UP_URL, "POST"))
+                        .requestMatchers(new AntPathRequestMatcher(SecurityConstants.SIGN_UP_URL, "POST")) // configured to be public
                         .permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/error", "POST"))  //to receive error message
                         .permitAll()
