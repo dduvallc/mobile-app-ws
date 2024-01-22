@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -129,7 +130,7 @@ public class UserController {
     // http://localhost:8080/mobile-app-ws/users/<user-id> like jsjajdkfgh/addresses
     @GetMapping (path="/{id}/addresses",
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})       // bind method to http get request
-    public List<AddressesRest> getUserAddresses (@PathVariable String id) {
+    public CollectionModel<AddressesRest> getUserAddresses (@PathVariable String id) {
 
         List<AddressesRest> returnValue = new ArrayList<>();
 
@@ -138,7 +139,16 @@ public class UserController {
         Type listType = new TypeToken<List<AddressesRest>>() {}.getType();
         returnValue = new ModelMapper().map(addressesDTO, listType);
 
-        return returnValue;
+        Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(id).withRel("user");
+        //So this line of code here creates a link to a web service endpoint that is handled by a method called
+        //getUserAddresses that is in this UserController class.
+        Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(id))
+//                .slash(userId)
+//                .slash("addresses")
+//                .slash(addressId)
+                .withSelfRel();
+
+        return CollectionModel.of(returnValue, userLink, selfLink);
     }
 
     // http://localhost:8080/mobile-app-ws/users/<user-id> like jsjajdkfgh/addresses/address-id
@@ -159,6 +169,8 @@ public class UserController {
 //                .slash("addresses")
                 .withRel("addresses");
         // http://localhost:8080/users/<userId>/addresses/{addressId}
+        //So this line of code here creates a link to a web service endpoint that is handled by a method called
+        //getUserAddress that is in this UserController class.
         Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(userId, addressId))
 //                .slash(userId)
 //                .slash("addresses")
