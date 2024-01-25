@@ -135,17 +135,23 @@ public class UserController {
         List<AddressesRest> returnValue = new ArrayList<>();
 
         List<AddressDTO> addressesDTO = addressesService.getAddresses(id);
-//        BeanUtils.copyProperties(userDto, returnValue);
-        Type listType = new TypeToken<List<AddressesRest>>() {}.getType();
-        returnValue = new ModelMapper().map(addressesDTO, listType);
+
+        if (addressesDTO != null && !addressesDTO.isEmpty()) {
+            Type listType = new TypeToken<List<AddressesRest>>() {}.getType();
+            returnValue = new ModelMapper().map(addressesDTO, listType);
+
+            for (AddressesRest addressRest : returnValue) {
+                Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
+                      .getUserAddress(id, addressRest.getAddressId()))
+                      .withSelfRel();
+                addressRest.add(selfLink);
+            }
+        }
 
         Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(id).withRel("user");
         //So this line of code here creates a link to a web service endpoint that is handled by a method called
         //getUserAddresses that is in this UserController class.
         Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(id))
-//                .slash(userId)
-//                .slash("addresses")
-//                .slash(addressId)
                 .withSelfRel();
 
         return CollectionModel.of(returnValue, userLink, selfLink);
@@ -165,17 +171,19 @@ public class UserController {
         Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).withRel("user"); // "user" used as jason key to a link object in the response
         // http://localhost:8080/users/<userId>/addresses
         Link userAddressesLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(userId))
+                .withRel("addresses");
 //                .slash(userId)
 //                .slash("addresses")
-                .withRel("addresses");
+
         // http://localhost:8080/users/<userId>/addresses/{addressId}
         //So this line of code here creates a link to a web service endpoint that is handled by a method called
         //getUserAddress that is in this UserController class.
         Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(userId, addressId))
+                .withSelfRel();
 //                .slash(userId)
 //                .slash("addresses")
 //                .slash(addressId)
-                .withSelfRel();
+
 
 //        returnValue.add(userLink);
 //        returnValue.add(userAddressesLink);
