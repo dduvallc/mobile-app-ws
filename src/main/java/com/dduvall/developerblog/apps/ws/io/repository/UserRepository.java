@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends PagingAndSortingRepository<UserEntity, Long>, ListCrudRepository<UserEntity, Long> { //CrudRepository, above, will still work
 
         UserEntity findByEmail(String email);
-
         UserEntity findByUserId(String userId);
+        UserEntity findUserByEmailVerificationToken(String token);
 
 }

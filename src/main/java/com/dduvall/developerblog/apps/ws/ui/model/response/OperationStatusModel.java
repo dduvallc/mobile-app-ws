@@ -2,15 +2,15 @@ package com.dduvall.developerblog.apps.ws.ui.model.response;
 
 public class OperationStatusModel {
 
-    private String operationalResult;
+    private String operationResult;
     private String operationName;
 
-    public String getOperationalResult() {
-        return operationalResult;
+    public String getOperationResult() {
+        return operationResult;
     }
 
-    public void setOperationalResult(String operationalResult) {
-        this.operationalResult = operationalResult;
+    public void setOperationResult(String operationResult) {
+        this.operationResult = operationResult;
     }
 
     public String getOperationName() {

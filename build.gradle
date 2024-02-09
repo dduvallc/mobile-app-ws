@@ -55,6 +55,10 @@ dependencies {
 	//HATEOAS
 	implementation 'org.springframework.boot:spring-boot-starter-hateoas:3.1.4'
 
+	// AWS
+	// https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ses
+	implementation 'com.amazonaws:aws-java-sdk-ses:1.12.644'
+
 	// testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

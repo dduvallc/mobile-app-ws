@@ -69,6 +69,8 @@ public class WebSecurity {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(new AntPathRequestMatcher(SecurityConstants.SIGN_UP_URL, "POST")) // configured to be public
                         .permitAll()
+                        .requestMatchers(new AntPathRequestMatcher(SecurityConstants.VERIFICATION_EMAIL_URL, "GET")) // configured to be public
+                        .permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/error", "POST"))  //to receive error message
                         .permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/error", "GET"))  //to receive error message

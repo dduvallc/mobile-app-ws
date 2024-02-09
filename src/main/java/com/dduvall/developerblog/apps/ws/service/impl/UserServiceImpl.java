@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -51,20 +53,17 @@ public class UserServiceImpl implements UserService {
             user.getAddresses().set(i, address);
         }
 
-//        UserEntity userEntity = new UserEntity();
-//        BeanUtils.copyProperties(user, userEntity);
         ModelMapper modelMapper = new ModelMapper();
         UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 
         String publicUserId = utils.generateUserId(30);
         userEntity.setUserId(publicUserId);
-//        userEntity.setEncryptedPassword("test");
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(publicUserId));
+        userEntity.setEmailVerificationStatus(false);
 
         UserEntity storedUserDetails = userRepository.save(userEntity);
 
-//        UserDto returnValue = new UserDto();
-//        BeanUtils.copyProperties(storedUserDetails, returnValue);
         UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
 
         return returnValue;
@@ -76,7 +75,12 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findByEmail(username);
 
         if (userEntity == null) throw new UsernameNotFoundException(username);
-        return new User(username, userEntity.getEncryptedPassword(), new ArrayList<>()); // User from Spring Framework
+
+        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(),
+                userEntity.getEmailVerificationStatus(),
+                true, true, true,
+                new ArrayList<>());
+//        return new User(username, userEntity.getEncryptedPassword(), new ArrayList<>()); // User from Spring Framework
     }
 
     @Override
@@ -101,7 +105,6 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException("User with ID: " + userId + " not found");  //this exception from Spring
         }
 
-//        BeanUtils.copyProperties(userEntity, returnValue);
         ModelMapper modelMapper = new ModelMapper();
         returnValue = modelMapper.map(userEntity, UserDto.class);
 
@@ -124,7 +127,6 @@ public class UserServiceImpl implements UserService {
 
         UserEntity updatedUserDetails = userRepository.save(userEntity); // update the DB
 
-//        BeanUtils.copyProperties(updatedUserDetails, returnValue);
         ModelMapper modelMapper = new ModelMapper();
         returnValue = modelMapper.map(updatedUserDetails, UserDto.class);
 
@@ -163,6 +165,26 @@ public class UserServiceImpl implements UserService {
             BeanUtils.copyProperties(userEntity, userDto);
 
             returnValue.add(userDto);
+        }
+
+        return returnValue;
+    }
+
+    @Override
+    public boolean verifyEmailToken(String token) {
+        boolean returnValue = false;
+
+        // Find user by token
+        UserEntity userEntity = userRepository.findUserByEmailVerificationToken(token);
+
+        if (userEntity != null) {
+            boolean hastokenExpired = Utils.hasTokenExpired(token);
+            if (!hastokenExpired) {
+                userEntity.setEmailVerificationToken(null);
+                userEntity.setEmailVerificationStatus(Boolean.TRUE);
+                userRepository.save(userEntity);
+                returnValue = true;
+            }
         }
 
         return returnValue;
