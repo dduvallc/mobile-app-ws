@@ -41,7 +41,10 @@ public class Utils {
 
     public static boolean hasTokenExpired(String token) {
 
-        SecretKey secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SecurityConstants.getTokenSecret()));
+//        SecretKey secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SecurityConstants.getTokenSecret()));
+        byte[] secretKeyBytes = Base64.getEncoder().encode(SecurityConstants.getTokenSecret().getBytes());
+        SecretKey secretKey = Keys.hmacShaKeyFor(secretKeyBytes);
+
         Claims claims = Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
